@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DictHero — Vocabulary Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F4EF;--surface:#fff;--surface2:#F0ECE5;
+  --ink:#1A1814;--ink2:#6B6760;--ink3:#A8A49F;
+  --red:#C4421A;--green:#2D7A3A;--blue:#1A4C8B;--amber:#B8860B;
+  --border:rgba(26,24,20,.10);--border2:rgba(26,24,20,.20);
+  --r:10px;--rl:16px;
+  --ff:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Lora',serif;
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:900px;margin:0 auto;padding:0 14px 60px}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 0 13px;border-bottom:1px solid var(--border2);flex-wrap:wrap;gap:8px}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-box{width:33px;height:33px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-name{font-size:16px;font-weight:800;letter-spacing:-.5px}
+.logo-tag{font-size:9px;font-family:var(--mono);color:var(--ink2);letter-spacing:.06em}
+.hdr-r{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.streak{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:2px 9px;font-size:10px;font-family:var(--mono);color:var(--ink2);transition:all .2s}
+.streak.on{background:#FFF8E7;border-color:var(--amber);color:var(--amber)}
+.stat{display:flex;flex-direction:column;align-items:center}
+.stat .v{font-size:17px;font-weight:800;font-family:var(--mono);line-height:1}
+.stat .l{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-top:1px}
+.stat.w .v{color:var(--green)}.stat.lo .v{color:var(--red)}
+
+/* SETUP */
+.setup{max-width:540px;margin:0 auto;padding:32px 0 20px;text-align:center}
+.setup-title{font-size:50px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:8px}
+.setup-sub{font-size:14px;color:var(--ink2);font-family:var(--serif);font-style:italic;margin-bottom:26px;line-height:1.6}
+.setup-sec{text-align:left;margin-bottom:18px}
+.sec-lbl{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink2);margin-bottom:8px}
+.grid{display:grid;gap:8px}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g2{grid-template-columns:1fr 1fr}
+@media(max-width:420px){.g3{grid-template-columns:1fr 1fr}}
+.opt{padding:11px 10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);font-family:var(--ff);cursor:pointer;text-align:center;color:var(--ink);transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.opt:hover{border-color:var(--ink2);background:var(--surface2)}
+.opt.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.opt .oi{font-size:17px;margin-bottom:2px}
+.opt .on{font-size:12px;font-weight:700}
+.opt .od{font-size:10px;font-family:var(--mono);color:var(--ink3)}
+.opt.sel .od{color:rgba(247,244,239,.55)}
+.play-btn{width:100%;margin-top:18px;padding:13px;background:var(--ink);color:var(--bg);border:none;border-radius:var(--r);font-family:var(--ff);font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.play-btn:hover{background:var(--red)}
+.play-btn:active{transform:scale(.97)}
+
+/* GAME LAYOUT */
+.game-layout{display:grid;grid-template-columns:265px 1fr;gap:16px;margin-top:18px}
+@media(max-width:600px){.game-layout{grid-template-columns:1fr}}
+.left-col{display:flex;flex-direction:column;gap:12px}
+.right-col{display:flex;flex-direction:column;gap:12px}
+
+/* HANGMAN CARD */
+.hg-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);padding:15px;position:relative;overflow:hidden}
+.hg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ink);border-radius:var(--rl) var(--rl) 0 0;transition:background .4s}
+.hg-card.danger::before{background:var(--red)}
+.hg-card.safe::before{background:var(--green)}
+.badges{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.diff-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:.04em}
+.easy{background:#EAF6EC;color:#2D7A3A}.medium{background:#FFF8E7;color:#B8860B}.hard{background:#FCEEEA;color:#C4421A}
+.lang-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2);color:var(--ink2)}
+.svg-wrap{display:flex;justify-content:center;margin:4px 0 6px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);transition:background .3s,transform .2s}
+.dot.used{background:var(--red);transform:scale(.85)}
+.lives-lbl{font-size:10px;color:var(--ink2);font-family:var(--mono);text-align:center;margin-top:5px;letter-spacing:.04em}
+
+/* HINT */
+.hint-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);padding:13px 15px}
+.hint-lbl{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink2);margin-bottom:5px}
+.hint-txt{font-size:13px;font-family:var(--serif);font-style:italic;color:var(--ink);line-height:1.55}
+.cat-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:2px 9px;font-size:10px;font-family:var(--mono);color:var(--ink2);margin-top:7px}
+
+/* WORD */
+.word-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);padding:20px 14px 14px}
+.word-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;min-height:52px;align-items:flex-end}
+.ls{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:23px;min-height:36px;justify-content:flex-end}
+.lc{font-size:24px;font-weight:800;font-family:var(--mono);color:var(--green);text-align:center;line-height:1;opacity:0;transform:scale(0);transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.lc.show{opacity:1;transform:scale(1)}
+.lb{height:24px;width:23px}
+.lu{width:23px;height:2px;background:var(--border2);border-radius:1px;transition:background .25s}
+.lc.show~.lu{background:var(--green)}
+.ws{width:13px}
+.word-meta{text-align:center;margin-top:9px;font-size:10px;color:var(--ink3);font-family:var(--mono);letter-spacing:.04em}
+
+/* KEYBOARD */
+.kb-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);padding:13px 10px}
+.kb-rows{display:flex;flex-direction:column;gap:5px;align-items:center}
+.kb-row{display:flex;gap:4px}
+.k{width:32px;height:32px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;-webkit-tap-highlight-color:transparent}
+.k:hover:not(:disabled){background:var(--ink);color:var(--bg);border-color:var(--ink);transform:translateY(-1px)}
+.k:active:not(:disabled){transform:scale(.93)}
+.k:disabled{opacity:.28;cursor:default;transform:none}
+.k.hit{background:var(--green);color:#fff;border-color:var(--green);opacity:1}
+.k.miss{background:var(--red);color:#fff;border-color:var(--red);opacity:1}
+@media(max-width:380px){.k{width:27px;height:27px;font-size:10px;border-radius:5px}.kb-row{gap:3px}}
+
+/* ACTIONS */
+.act-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;min-width:90px;height:38px;border-radius:var(--r);border:1px solid var(--border2);font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.38;cursor:default;transform:none}
+.btn-p{background:var(--ink);color:var(--bg);border-color:var(--ink)}.btn-p:hover{background:var(--ink2)}
+.btn-s{background:var(--surface);color:var(--ink)}.btn-s:hover{background:var(--surface2)}
+
+/* RESULT CARD */
+.result-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);padding:20px;animation:slideUp .35s cubic-bezier(.34,1.3,.64,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.res-top{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.res-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.res-icon.win{background:#EAF6EC}.res-icon.lose{background:#FCEEEA}
+.res-head{font-size:18px;font-weight:800;letter-spacing:-.4px}
+.res-head.win{color:var(--green)}.res-head.lose{color:var(--red)}
+.res-sub{font-size:11px;color:var(--ink2);margin-top:2px;font-family:var(--mono)}
+.res-word-box{background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);padding:11px 13px;margin-bottom:12px}
+.res-word{font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:.06em;margin-bottom:2px}
+.res-phon{font-size:12px;color:var(--ink2);font-family:var(--serif);font-style:italic}
+.info-blk{margin-bottom:9px}
+.info-lbl{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink2);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.idot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
+.bl{background:var(--blue)}.am{background:var(--amber)}.gr{background:var(--green)}
+.info-txt{font-size:13px;font-family:var(--serif);line-height:1.58;color:var(--ink)}
+.native{font-size:15px}
+.divider{border:none;border-top:1px solid var(--border);margin:9px 0}
+.res-actions{display:flex;gap:8px;margin-top:14px}
+.loading-row{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2);font-family:var(--mono)}
+.mini-spin{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.big-spin{width:26px;height:26px;border:2px solid var(--border2);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOADING SCREEN */
+.load-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:80px 20px;color:var(--ink2);font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:var(--bg);padding:8px 17px;border-radius:100px;font-size:12px;font-family:var(--mono);letter-spacing:.04em;pointer-events:none;z-index:50;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@keyframes pop{0%{transform:scale(0) rotate(-8deg);opacity:0}60%{transform:scale(1.15) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.do-pop{animation:pop .3s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.shake{animation:shake .35s ease}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <div class="logo">
+      <div class="logo-box"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><path d="M3 15V7M9.5 15V3M16 15V9" stroke="#F7F4EF" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      <div><div class="logo-name">DictHero</div><div class="logo-tag">Vocabulary Builder</div></div>
+    </div>
+    <div class="hdr-r">
+      <div class="streak" id="streakEl">🔥 0 streak</div>
+      <div class="stat w"><span class="v" id="winsEl">0</span><span class="l">Wins</span></div>
+      <div class="stat lo"><span class="v" id="lossEl">0</span><span class="l">Losses</span></div>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <div id="setup" class="setup">
+    <div class="setup-title">Hang<span style="color:var(--red)">man</span></div>
+    <div class="setup-sub">Guess the word. Learn its meaning.<br>Discover it in your language.</div>
+
+    <div class="setup-sec">
+      <div class="sec-lbl">Difficulty</div>
+      <div class="grid g3">
+        <button class="opt sel" data-diff="easy" onclick="selDiff(this)"><span class="oi">🟢</span><span class="on">Easy</span><span class="od">8 lives · A2-B1</span></button>
+        <button class="opt" data-diff="medium" onclick="selDiff(this)"><span class="oi">🟡</span><span class="on">Medium</span><span class="od">6 lives · B2</span></button>
+        <button class="opt" data-diff="hard" onclick="selDiff(this)"><span class="oi">🔴</span><span class="on">Hard</span><span class="od">4 lives · C1/C2</span></button>
+      </div>
+    </div>
+
+    <div class="setup-sec">
+      <div class="sec-lbl">Translation Language</div>
+      <div class="grid g2">
+        <button class="opt sel" data-lang="ta" onclick="selLang(this)"><span class="oi">🇮🇳</span><span class="on">Tamil</span><span class="od">தமிழ்</span></button>
+        <button class="opt" data-lang="hi" onclick="selLang(this)"><span class="oi">🇮🇳</span><span class="on">Hindi</span><span class="od">हिन्दी</span></button>
+        <button class="opt" data-lang="te" onclick="selLang(this)"><span class="oi">🇮🇳</span><span class="on">Telugu</span><span class="od">తెలుగు</span></button>
+        <button class="opt" data-lang="ml" onclick="selLang(this)"><span class="oi">🇮🇳</span><span class="on">Malayalam</span><span class="od">മലയാളം</span></button>
+      </div>
+    </div>
+
+    <button class="play-btn" onclick="startGame()">
+      Start Playing
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" style="display:none">
+    <div class="game-layout">
+      <div class="left-col">
+        <div class="hg-card" id="hgCard">
+          <div class="badges">
+            <span class="diff-badge easy" id="diffBadge">Easy</span>
+            <span class="lang-badge" id="langBadge">Tamil</span>
+          </div>
+          <div class="svg-wrap">
+            <svg id="hgSvg" width="188" height="185" viewBox="0 0 200 200">
+              <line x1="20" y1="188" x2="180" y2="188" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="50" y1="188" x2="50" y2="20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="50" y1="20" x2="120" y2="20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="120" y1="20" x2="120" y2="40" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <circle id="bp0" cx="120" cy="55" r="15" stroke="var(--red)" stroke-width="2.5" fill="none" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp1" x1="120" y1="70" x2="120" y2="118" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp2" x1="120" y1="82" x2="96" y2="105" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp3" x1="120" y1="82" x2="144" y2="105" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp4" x1="120" y1="118" x2="96" y2="148" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp5" x1="120" y1="118" x2="144" y2="148" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp6" x1="116" y1="49" x2="113" y2="53" stroke="var(--red)" stroke-width="2" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+              <line id="bp7" x1="124" y1="49" x2="127" y2="53" stroke="var(--red)" stroke-width="2" stroke-linecap="round" opacity="0" style="transition:opacity .4s"/>
+            </svg>
+          </div>
+          <div class="dots" id="dotsRow"></div>
+          <div class="lives-lbl" id="livesLbl">8 lives left</div>
+        </div>
+        <div class="hint-card">
+          <div class="hint-lbl">Word Hint</div>
+          <div class="hint-txt" id="hintTxt">Fetching hint...</div>
+          <div class="cat-tag" id="catTag" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="word-card">
+          <div class="word-row" id="wordRow"></div>
+          <div class="word-meta" id="wordMeta"></div>
+        </div>
+        <div class="kb-card"><div class="kb-rows" id="kbRows"></div></div>
+        <div class="act-row">
+          <button class="btn btn-s" id="hintBtn" onclick="doHint()" disabled>💡 Reveal Letter</button>
+          <button class="btn btn-p" onclick="goSetup()">⟳ New Game</button>
+        </div>
+        <div id="resultWrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ROWS=[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['Z','X','C','V','B','N','M']];
+const DIFF={easy:{lives:8,lbl:'Easy',cls:'easy'},medium:{lives:6,lbl:'Medium',cls:'medium'},hard:{lives:4,lbl:'Hard',cls:'hard'}};
+const LANG={ta:{lbl:'Tamil',key:'tamil',sc:'தமிழ்'},hi:{lbl:'Hindi',key:'hindi',sc:'हिन्दी'},te:{lbl:'Telugu',key:'telugu',sc:'తెలుగు'},ml:{lbl:'Malayalam',key:'malayalam',sc:'മലയാളം'}};
+const FALLBACK={easy:[{word:'BRAVE',hint:'The knight showed this when facing the dragon.',cat:'Character'},{word:'GENTLE',hint:'A touch so soft it would not startle a butterfly.',cat:'Character'},{word:'CLEVER',hint:'What foxes in fables always seem to be.',cat:'Mind'},{word:'BRIGHT',hint:'Opposite of dim, or someone very smart.',cat:'Adjective'},{word:'SIMPLE',hint:'Not complex; easy to understand.',cat:'Adjective'},{word:'DANGER',hint:'Something that could cause harm or injury.',cat:'Nouns'},{word:'FRIEND',hint:'A person you know well and like.',cat:'People'},{word:'WONDER',hint:'A feeling of surprise and admiration.',cat:'Emotion'}],medium:[{word:'ELOQUENT',hint:'This quality makes speeches powerful and persuasive.',cat:'Communication'},{word:'TENACIOUS',hint:'The quality that keeps a bulldog holding on.',cat:'Character'},{word:'CATALYST',hint:'Something that sparks rapid change without being consumed.',cat:'Science'},{word:'AMBIGUOUS',hint:'When something has more than one possible meaning.',cat:'Logic'},{word:'PRAGMATIC',hint:'Dealing with things sensibly and realistically.',cat:'Mindset'},{word:'RESILIENT',hint:'Able to withstand or recover quickly from difficult conditions.',cat:'Character'},{word:'SOLITUDE',hint:'The state of being alone, usually by choice.',cat:'State'},{word:'VIBRANT',hint:'Full of energy, life, and bright colors.',cat:'Adjective'}],hard:[{word:'EPHEMERAL',hint:'Like morning dew that vanishes before noon.',cat:'Academic'},{word:'MELLIFLUOUS',hint:'Sound that flows like honey poured from a jar.',cat:'Arts'},{word:'PERSPICACIOUS',hint:'What detectives must be to see the unseen truth.',cat:'Mind'},{word:'UBIQUITOUS',hint:'Present, appearing, or found everywhere.',cat:'Academic'},{word:'CACOPHONY',hint:'A harsh, discordant mixture of sounds.',cat:'Sounds'},{word:'SURREPTITIOUS',hint:'Kept secret, especially because it would not be approved of.',cat:'Behavior'},{word:'ENIGMATIC',hint:'Difficult to interpret or understand; mysterious.',cat:'Mind'},{word:'PARADIGM',hint:'A typical example or pattern of something; a model.',cat:'Science'}]};
+
+let S={word:'',guessed:new Set(),wrong:0,max:6,diff:'easy',lang:'ta',hint:'',cat:'',over:false,loading:false,hintUsed:false,wins:0,losses:0,streak:0};
+
+function selDiff(el){document.querySelectorAll('[data-diff]').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');S.diff=el.dataset.diff}
+function selLang(el){document.querySelectorAll('[data-lang]').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');S.lang=el.dataset.lang}
+
+function buildKb(){
+  const kb=document.getElementById('kbRows');kb.innerHTML='';
+  ROWS.forEach(row=>{const r=document.createElement('div');r.className='kb-row';row.forEach(k=>{const b=document.createElement('button');b.className='k';b.id='k-'+k;b.textContent=k;b.onclick=()=>guess(k);r.appendChild(b)});kb.appendChild(r)});
+}
+
+function buildDots(){
+  const d=document.getElementById('dotsRow');d.innerHTML='';
+  for(let i=0;i<S.max;i++){const dot=document.createElement('div');dot.className='dot';dot.id='d-'+i;d.appendChild(dot)}
+  updDots();
+}
+
+function updDots(){
+  for(let i=0;i<S.max;i++){const d=document.getElementById('d-'+i);if(!d)continue;d.className='dot'+(i<S.wrong?' used':'')}
+  const left=S.max-S.wrong;
+  document.getElementById('livesLbl').textContent=left+' '+(left===1?'life':'lives')+' left';
+  const c=document.getElementById('hgCard');c.className='hg-card'+(S.wrong>=S.max-1?' danger':S.wrong>0?' safe':'');
+}
+
+function renderHangman(){for(let i=0;i<8;i++){const el=document.getElementById('bp'+i);if(el)el.setAttribute('opacity',i<S.wrong?'1':'0')}}
+
+function renderWord(){
+  const row=document.getElementById('wordRow');row.innerHTML='';
+  S.word.split('').forEach(ch=>{
+    if(ch===' '){const s=document.createElement('div');s.className='ws';row.appendChild(s);return}
+    const slot=document.createElement('div');slot.className='ls';
+    const lc=document.createElement('div');lc.className='lc';
+    const lb=document.createElement('div');lb.className='lb';
+    const lu=document.createElement('div');lu.className='lu';
+    if(S.guessed.has(ch)||S.over){lc.classList.add('show');lc.textContent=ch;slot.appendChild(lc)}
+    else slot.appendChild(lb);
+    slot.appendChild(lu);row.appendChild(slot);
+  });
+  const total=S.word.replace(/ /g,'').length;
+  document.getElementById('wordMeta').textContent=total+' letters'+(S.word.includes(' ')?'  ·  '+S.word.trim().split(/\s+/).length+' words':'');
+}
+
+function guess(letter){
+  if(S.over||S.loading||S.guessed.has(letter))return;
+  S.guessed.add(letter);
+  const btn=document.getElementById('k-'+letter);
+  if(S.word.includes(letter)){
+    btn.classList.add('hit');btn.disabled=true;
+    renderWord();animateLetter(letter);
+    if([...S.word.replace(/ /g,'')].every(c=>S.guessed.has(c)))endGame(true);
+  }else{
+    btn.classList.add('miss');btn.disabled=true;
+    S.wrong++;renderHangman();updDots();
+    document.getElementById('wordRow').classList.add('shake');
+    setTimeout(()=>document.getElementById('wordRow').classList.remove('shake'),380);
+    if(S.wrong>=S.max)endGame(false);
+  }
+}
+
+function animateLetter(letter){
+  const slots=document.querySelectorAll('.ls');let idx=0;
+  S.word.split('').forEach(ch=>{
+    if(ch===' ')return;const slot=slots[idx++];if(!slot)return;
+    if(ch===letter){const lc=slot.querySelector('.lc');if(lc){lc.classList.add('do-pop');setTimeout(()=>lc.classList.remove('do-pop'),350)}}
+  });
+}
+
+function endGame(won){
+  S.over=true;
+  if(won){S.wins++;S.streak++}else{S.losses++;S.streak=0}
+  updScoreboard();renderWord();
+  showToast(won?'🎉 Correct!':'💀 Better luck next time!');
+  setTimeout(()=>showResult(won),650);
+}
+
+function showResult(won){
+  const lc=LANG[S.lang];
+  const wrap=document.getElementById('resultWrap');
+  wrap.innerHTML=`<div class="result-card">
+    <div class="res-top">
+      <div class="res-icon ${won?'win':'lose'}">${won?'🎉':'💀'}</div>
+      <div><div class="res-head ${won?'win':'lose'}">${won?'Well done!':'Game Over'}</div>
+        <div class="res-sub">${won?'You guessed it correctly!':'The word has been revealed.'}</div></div>
+    </div>
+    <div class="res-word-box">
+      <div class="res-word">${S.word}</div>
+      <div class="res-phon" id="rPhon">${S.cat||''}</div>
+    </div>
+    <div class="info-blk"><div class="info-lbl"><span class="idot bl"></span>Definition</div>
+      <div class="info-txt" id="rDef"><div class="loading-row"><div class="mini-spin"></div>Loading...</div></div></div>
+    <hr class="divider">
+    <div class="info-blk"><div class="info-lbl"><span class="idot am"></span>Example</div>
+      <div class="info-txt" id="rEx">...</div></div>
+    <hr class="divider">
+    <div class="info-blk"><div class="info-lbl"><span class="idot gr"></span>${lc.sc} Translation (${lc.lbl})</div>
+      <div class="info-txt native" id="rTrans"><div class="loading-row"><div class="mini-spin"></div>Loading...</div></div></div>
+    <div class="res-actions">
+      <button class="btn btn-s" style="flex:0.5" onclick="closeResult()">Close</button>
+      <button class="btn btn-p" onclick="closeResult();startGame()">Next Word →</button>
+    </div>
+  </div>`;
+  fetchDetails(S.word,S.lang);
+}
+
+async function fetchDetails(word,lang){
+  const lc=LANG[lang];
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:`For the English word "${word}", return ONLY a JSON object:\n{"definition":"clear 1-2 sentence meaning","example":"example sentence","phonetic":"/phonetic/","partOfSpeech":"noun/verb/adj etc","${lc.key}_word":"${lc.lbl} equivalent in ${lc.sc} script","${lc.key}_explanation":"brief explanation in ${lc.sc} script (1 sentence)"}`}]})});
+    const data=await res.json();
+    const txt=data.content?.find(c=>c.type==='text')?.text||'{}';
+    const info=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const rDef=document.getElementById('rDef'),rEx=document.getElementById('rEx'),rTrans=document.getElementById('rTrans'),rPhon=document.getElementById('rPhon');
+    if(rDef)rDef.textContent=info.definition||'—';
+    if(rEx)rEx.textContent=info.example||'—';
+    if(rPhon)rPhon.textContent=(info.phonetic||'')+(info.partOfSpeech?' · '+info.partOfSpeech:'')+(S.cat?' · '+S.cat:'');
+    const tw=info[lc.key+'_word']||'',te=info[lc.key+'_explanation']||'';
+    if(rTrans)rTrans.textContent=(tw?tw+' — ':'')+te;
+  }catch(e){
+    const d=document.getElementById('rDef');if(d)d.textContent='Could not load details.';
+    const t=document.getElementById('rTrans');if(t)t.textContent='—';
+  }
+}
+
+function closeResult(){document.getElementById('resultWrap').innerHTML=''}
+
+function updScoreboard(){
+  document.getElementById('winsEl').textContent=S.wins;
+  document.getElementById('lossEl').textContent=S.losses;
+  const st=document.getElementById('streakEl');
+  st.textContent='🔥 '+S.streak+' streak';st.className='streak'+(S.streak>0?' on':'');
+}
+
+async function startGame(){
+  closeResult();
+  S.word='';S.guessed=new Set();S.wrong=0;S.hint='';S.cat='';S.over=false;S.loading=true;S.hintUsed=false;
+  const dc=DIFF[S.diff];S.max=dc.lives;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='block';
+  document.getElementById('hintTxt').textContent='Fetching hint...';
+  document.getElementById('catTag').style.display='none';
+  document.getElementById('hintBtn').disabled=true;
+  document.getElementById('diffBadge').textContent=dc.lbl;
+  document.getElementById('diffBadge').className='diff-badge '+dc.cls;
+  document.getElementById('langBadge').textContent=LANG[S.lang].lbl;
+  buildKb();buildDots();renderHangman();
+
+  const PROMPTS={easy:'Give a random simple English vocabulary word (A2-B1 level), 4-7 letters. Avoid common examples like "brave". Return ONLY JSON: {"word":"...","hint":"one cryptic clue sentence, no synonyms","category":"...","partOfSpeech":"..."}',medium:'Give a random B2-level English vocabulary word, 5-9 letters. Pick something unique. Return ONLY JSON: {"word":"...","hint":"cryptic clue 12-15 words","category":"...","partOfSpeech":"..."}',hard:'Give an advanced, rare C1/C2 English vocabulary word, 7+ letters. Return ONLY JSON: {"word":"...","hint":"abstract cryptic clue","category":"...","partOfSpeech":"..."}'};
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:PROMPTS[S.diff] + '\nSeed: ' + Math.random() + '\nTime: ' + Date.now() + '\nInstruction: Pick a unique random word, avoid common ones.'}]})});
+    const data=await res.json();
+    const txt=data.content?.find(c=>c.type==='text')?.text||'{}';
+    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    S.word=(parsed.word||'eloquent').toUpperCase();S.hint=parsed.hint||'A word to discover.';S.cat=parsed.category||'Vocabulary';
+  }catch(e){
+    const fb=FALLBACK[S.diff];const pick=fb[Math.floor(Math.random()*fb.length)];
+    S.word=pick.word;S.hint=pick.hint;S.cat=pick.cat;
+  }
+
+  document.getElementById('hintTxt').textContent=S.hint;
+  const ct=document.getElementById('catTag');ct.textContent=S.cat;ct.style.display='inline-block';
+  document.getElementById('hintBtn').disabled=false;
+  S.loading=false;renderWord();
+  document.addEventListener('keydown',onKey);
+}
+
+function onKey(e){const k=e.key.toUpperCase();if(/^[A-Z]$/.test(k)&&!S.over)guess(k)}
+
+function doHint(){
+  if(S.over||S.loading||S.hintUsed)return;
+  const u=[...S.word.replace(/ /g,'')].filter(c=>!S.guessed.has(c));
+  if(!u.length)return;
+  S.hintUsed=true;document.getElementById('hintBtn').disabled=true;
+  const pick=u[Math.floor(Math.random()*u.length)];
+  showToast('💡 Revealing: '+pick);guess(pick);
+}
+
+function goSetup(){
+  document.removeEventListener('keydown',onKey);
+  closeResult();
+  document.getElementById('game').style.display='none';
+  document.getElementById('setup').style.display='block';
+}
+
+let toastT;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+</script>
+</body>
+</html>
