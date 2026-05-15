@@ -1,4 +1,4 @@
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 // ── Game APIs ──────────────────────────────────────────────
 
@@ -55,58 +55,13 @@ export async function endGameAPI(word, lang) {
   // Returns: { definition, example, phonetic, part_of_speech, translation_word, translation_explanation }
 }
 
-// ── Direct Claude API fallback (when Django backend not running) ──────────
-
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages'
-const MODEL = 'claude-sonnet-4-20250514'
-
-const DIFF_PROMPTS = {
-  easy:   'Give a random simple English vocabulary word (A2-B1 level), 4-7 letters. Avoid common examples like "brave". Return ONLY a JSON object: {"word":"...","hint":"one cryptic clue sentence, no synonyms","category":"...","partOfSpeech":"..."}',
-  medium: 'Give a random B2-level English vocabulary word, 5-9 letters. Pick something unique. Return ONLY a JSON object: {"word":"...","hint":"cryptic clue 12-15 words","category":"...","partOfSpeech":"..."}',
-  hard:   'Give an advanced, rare C1/C2 English vocabulary word, 7+ letters. Return ONLY a JSON object: {"word":"...","hint":"abstract cryptic clue only","category":"...","partOfSpeech":"..."}',
-}
+// ── End of Service ──────────────────────────────────────────
 
 const LANG_MAP = {
   ta: { label: 'Tamil',     key: 'tamil',     script: 'தமிழ்' },
   hi: { label: 'Hindi',     key: 'hindi',     script: 'हिन्दी' },
   te: { label: 'Telugu',    key: 'telugu',    script: 'తెలుగు' },
   ml: { label: 'Malayalam', key: 'malayalam', script: 'മലയാളം' },
-}
-
-async function claudePost(prompt, maxTokens = 400) {
-  const res = await fetch(ANTHROPIC_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-  const data = await res.json()
-  const text = data.content?.find(c => c.type === 'text')?.text || '{}'
-  return JSON.parse(text.replace(/```json|```/g, '').trim())
-}
-
-/** Fetch word directly from Claude (no backend) */
-export async function fetchWordDirect(difficulty) {
-  return claudePost(DIFF_PROMPTS[difficulty] + '\nSeed: ' + Math.random())
-}
-
-/** Fetch word details directly from Claude (no backend) */
-export async function fetchDetailsDirect(word, lang) {
-  const lc = LANG_MAP[lang] || LANG_MAP.ta
-  const prompt = `For the English word "${word}", return ONLY a JSON object with no extra text:
-{
-  "definition": "clear 1-2 sentence meaning",
-  "example": "natural example sentence using the word",
-  "phonetic": "/phonetic/ like /ɪˈfem.ər.əl/",
-  "partOfSpeech": "noun/verb/adjective etc",
-  "${lc.key}_word": "the ${lc.label} equivalent word(s) in ${lc.script} script",
-  "${lc.key}_explanation": "brief explanation in ${lc.label} script (1 sentence in ${lc.script})"
-}`
-  const data = await claudePost(prompt, 600)
-  return { ...data, langKey: lc.key, langLabel: lc.label, langScript: lc.script }
 }
 
 export const LANG_CONFIG = LANG_MAP
