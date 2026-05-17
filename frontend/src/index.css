@@ -32,8 +32,8 @@ body {
   font-family: var(--ff);
   background: var(--bg);
   color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -42,7 +42,4 @@ button {
   cursor: pointer;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--surface2); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+/* Scrollbar removed */
