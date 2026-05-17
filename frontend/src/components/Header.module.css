@@ -88,3 +88,13 @@
   color: var(--ink2);
   margin-top: 2px;
 }
+
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 0 10px;
+  }
+  .logoName { font-size: 15px; }
+  .logoBox { width: 28px; height: 28px; }
+  .right { gap: 10px; }
+  .val { font-size: 16px; }
+}

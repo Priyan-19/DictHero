@@ -119,3 +119,9 @@
   color: var(--ink2);
   margin-top: 8px;
 }
+
+@media (max-width: 768px) {
+  .hgCard { padding: 12px; }
+  .hintCard { padding: 12px; }
+  .hintTxt { font-size: 12px; }
+}

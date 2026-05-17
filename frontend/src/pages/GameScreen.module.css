@@ -8,8 +8,30 @@
   margin-right: auto;
 }
 
-@media (max-width: 620px) {
-  .layout { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .layout { 
+    grid-template-columns: 1fr; 
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .wordCard {
+    padding: 16px 10px 12px;
+  }
+  .letterChar { font-size: 20px; }
+  .letterSlot { min-width: 20px; min-height: 30px; }
+  .underline { width: 20px; }
+  .letterBlank { width: 20px; height: 20px; }
+  .space { width: 10px; }
+}
+
+@media (max-width: 480px) {
+  .letterChar { font-size: 18px; }
+  .letterSlot { min-width: 18px; min-height: 26px; }
+  .underline { width: 18px; }
+  .letterBlank { width: 18px; height: 18px; }
+  .space { width: 6px; }
+  .actRow { flex-direction: column; }
+  .btn { width: 100%; }
 }
 
 .rightPanel {

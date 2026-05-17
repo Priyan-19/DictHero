@@ -6,3 +6,18 @@
   flex-direction: column;
   overflow: hidden;
 }
+
+@media (max-width: 768px) {
+  .app {
+    padding: 16px;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 12px;
+  }
+}

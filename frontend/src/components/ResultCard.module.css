@@ -149,3 +149,9 @@
 
 .btnS { background: var(--surface); color: var(--ink); flex: 0.5; }
 .btnS:hover { background: var(--surface2); }
+
+@media (max-width: 768px) {
+  .wordDisplay { font-size: 22px; }
+  .actions { flex-direction: column; }
+  .btnS { flex: 1; }
+}

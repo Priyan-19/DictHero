@@ -8,7 +8,7 @@
 .hero { margin-bottom: 28px; }
 
 .title {
-  font-size: 128px;
+  font-size: clamp(42px, 13vw, 128px);
   font-weight: 800;
   letter-spacing: -3px;
   line-height: 0.9;
@@ -48,8 +48,36 @@
 .two   { grid-template-columns: 1fr 1fr; }
 .three { grid-template-columns: 1fr 1fr 1fr; }
 
-@media (max-width: 420px) {
-  .three { grid-template-columns: 1fr 1fr; }
+@media (max-width: 768px) {
+  .title {
+    letter-spacing: -1.5px;
+  }
+  .sub {
+    font-size: 15px;
+  }
+  .two { grid-template-columns: 1fr 1fr; }
+  .three { gap: 8px; }
+  .three .optBtn {
+    aspect-ratio: 1;
+    justify-content: center;
+    padding: 8px 4px;
+    border-radius: 20px;
+  }
+  .three .optIcon { margin-bottom: 4px; font-size: 16px; }
+  .three .optName { font-size: 12px; }
+  .three .optDesc { font-size: 9px; line-height: 1.2; }
+}
+
+@media (max-width: 480px) {
+  .title {
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .two { grid-template-columns: 1fr 1fr; }
+  .optBtn { padding: 10px 8px; gap: 4px; }
+  .optIcon { font-size: 14px; margin-bottom: 0px; }
+  .optName { font-size: 12px; }
+  .optDesc { font-size: 9px; }
 }
 
 .optBtn {
