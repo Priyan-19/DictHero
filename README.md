@@ -1,86 +1,121 @@
-# DictHero — Gamified English Vocabulary Builder
+<div align="center">
 
-A production-level, fully API-driven Hangman SPA for vocabulary learning with bilingual support (Tamil, Hindi, Telugu, Malayalam).
+# 🎮 DictHero
+### Gamified English Vocabulary Builder ⚡🔤
 
----
+[![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Django](https://img.shields.io/badge/Django_4.2-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
 
-## Tech Stack
+**DictHero** is a production-level, fully API-driven Hangman SPA for vocabulary learning with bilingual support. Built with Vanilla JavaScript, Vite, and Django, it leverages Google Gemini to deliver a dynamic, gamified learning experience.
 
-| Layer      | Technology                          |
-|------------|-------------------------------------|
-| Frontend   | React 18, Framer Motion, Vite       |
-| Backend    | Python 3.11, Django 4.2, DRF        |
-| AI Engine  | Google Gemini (gemini-1.5-flash)    |
-| No DB      | Fully stateless / API-driven        |
+</div>
 
 ---
 
-## Features
+## 📖 Project Overview
 
-- **3 Difficulty Levels**: Easy (A2-B1), Medium (B2), Hard (C1-C2).
-- **Multilingual Support**: Definitions and translations in Tamil, Hindi, Telugu, and Malayalam.
-- **AI-Powered**: Dynamic word generation and detailed explanations via Google Gemini.
-- **Modern UI**: Animated Hangman SVG, glassmorphism design, and smooth transitions.
-- **Stateless Architecture**: No database required; game state is managed via client-server communication.
-- **Responsive**: Fully optimized for mobile and desktop.
+This platform transforms the process of learning English vocabulary by combining engaging gameplay, intelligent AI generation, and multilingual support.
+
+### Core Value Proposition
+- **🎮 Gamified Learning**: Engaging Hangman gameplay
+- **🧠 AI-Powered**: Dynamic word generation & detailed explanations
+- **🌍 Multilingual**: Native translations & hints (Tamil, Hindi, Telugu, Malayalam)
+- **⚡ Stateless Architecture**: Fully API-driven without DB overhead
+- **🎨 Modern UI**: Glassmorphism design and smooth animations
 
 ---
 
-## Detailed Project Structure
+## 🎨 Design Philosophy: Gamified UI/UX
+
+The interface is crafted to provide a highly interactive and engaging learning environment.
+
+### Visual System
+- **Design Style**: Glassmorphism and sleek modern UI
+- **Animations**: Framer Motion for smooth state transitions
+- **Feedback**: Real-time visual feedback on correct/incorrect guesses
+
+### UX Highlights
+- Animated Hangman SVG dynamically tracking progress
+- Interactive on-screen keyboard
+- Post-game ResultCard with detailed definitions and translations
+- Fully responsive design optimized for mobile and desktop
+
+---
+
+## 🏗️ System Architecture
+
+The application follows a **modern, stateless, API-driven architecture**:
+
+### 🐹 Backend: Python & Django
+- Django 4.2 with Django REST Framework (DRF)
+- Stateless request processing
+- Modular app structure for game logic and AI integration
+
+### ⚡ Frontend: React + Vite
+- React 18 SPA (Single Page Application)
+- Framer Motion for UI animations
+- State managed via client-server communication
+
+### 🔗 AI Layer: Google Gemini
+- `gemini-1.5-flash` model for dynamic content generation
+- Real-time word fetching, hints, and explanations
+
+---
+
+## 🚀 Key Features
+
+### 🔍 3 Difficulty Levels
+- **Easy** → A2-B1 CEFR level words
+- **Medium** → B2 CEFR level words
+- **Hard** → C1-C2 advanced vocabulary
+
+### 🌍 Multilingual Support
+- Definitions and translations available in:
+  - Tamil
+  - Hindi
+  - Telugu
+  - Malayalam
+
+### ⚡ Stateless Game Engine
+- No database required; game state is strictly managed between client and server
+
+---
+
+## 📂 Project Structure
 
 ```text
 dicthero/
 ├── frontend/                       # React SPA (Vite)
 │   ├── src/
-│   │   ├── animations/             # Framer Motion animation presets
-│   │   │   └── motionVariants.js
+│   │   ├── animations/             # Framer Motion presets
 │   │   ├── components/             # Reusable UI components
-│   │   │   ├── GameBoard.jsx       # Hangman SVG + Hint display
-│   │   │   ├── Header.jsx          # Navbar with score/streak tracker
-│   │   │   ├── Keyboard.jsx        # On-screen letter keyboard
-│   │   │   └── ResultCard.jsx      # Post-game definition/translation card
 │   │   ├── pages/                  # Main screen components
-│   │   │   ├── GameScreen.jsx      # Main game logic and state management
-│   │   │   └── SetupScreen.jsx     # Difficulty and Language selection
 │   │   ├── services/               # API integration layer
-│   │   │   └── api.js              # Axios/Fetch logic for backend calls
-│   │   ├── App.jsx                 # Screen routing and global state
-│   │   ├── main.jsx                # React entry point
-│   │   └── index.css               # Global styles and design tokens
+│   │   └── App.jsx                 # Screen routing
 │   ├── index.html                  # Main HTML entry
-│   ├── vite.config.js              # Vite configuration (proxy, plugins)
-│   └── package.json                # Frontend dependencies and scripts
+│   └── vite.config.js              # Vite configuration
 │
 ├── backend/                        # Django REST API
 │   ├── config/                     # Core Django configuration
-│   │   ├── settings.py             # App config, Gemini key, CORS
-│   │   ├── urls.py                 # Main URL routing
-│   │   └── wsgi.py                 # Production deployment entry
 │   ├── apps/                       # Modular Django apps
 │   │   ├── game/                   # Hangman logic & API endpoints
-│   │   │   ├── engine.py           # Word masking & guess checking logic
-│   │   │   ├── views.py            # API ViewSets (start, guess, end)
-│   │   │   └── urls.py             # App-specific routing
 │   │   ├── api_integration/        # External AI connectivity
-│   │   │   └── client.py           # Google Gemini API & fallback logic
 │   │   └── formatter/              # Data shaping
-│   │       └── serializers.py      # Response formatters for frontend
-│   ├── requirements.txt            # Python dependencies (django, genai, etc.)
-│   ├── manage.py                   # Django CLI entry
-│   └── .env.example                # Template for environment variables
+│   ├── requirements.txt            # Python dependencies
+│   └── manage.py                   # Django CLI entry
 │
-├── dicthero-standalone.html        # Fully portable, single-file HTML version
-└── .gitignore                      # Git exclusion rules
+└── dicthero-standalone.html        # Fully portable, single-file HTML version
 ```
 
 ---
 
-## Setup Instructions
+## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js 18+**
-- **Python 3.11+**
-- **Google Gemini API Key** (Get one at [AI Studio](https://aistudio.google.com/))
+- Node.js 18+
+- Python 3.11+
+- Google Gemini API Key
 
 ---
 
@@ -120,11 +155,22 @@ npm install
 npm run dev
 ```
 
-The app will be available at: **http://localhost:3000**
+**Access the application at:** `http://localhost:3000` (or Vite's default port)
 
 ---
 
-## API Documentation
+## 🔑 AI API Configuration
+
+| Service | Model | Purpose |
+|------|------|------|
+| Google Gemini | `gemini-1.5-flash` | Word generation, definitions, translations |
+
+### Recommendation
+Get a free API key at [Google AI Studio](https://aistudio.google.com/)
+
+---
+
+## 📊 API Documentation
 
 | Method | Endpoint              | Description                        |
 |--------|-----------------------|------------------------------------|
@@ -134,6 +180,25 @@ The app will be available at: **http://localhost:3000**
 
 ---
 
-## License
+## 📦 Architecture Highlights
 
-MIT
+- Fully stateless backend logic
+- AI-driven dynamic content without manual DB curation
+- Component-driven React UI with Framer Motion
+- Standalone portable HTML version available
+
+---
+
+## 🎯 Use Cases
+
+- Fun and interactive way to build English vocabulary
+- Learn meanings in native regional languages
+- Challenge yourself with high-level vocabulary
+
+---
+
+<div align="center">
+  <p>Built with 🎮 for Smarter Vocabulary Learning</p>
+  <p>Developed by <strong>Priyan</strong></p>
+  <p>© 2026 DictHero. All Rights Reserved.</p>
+</div>

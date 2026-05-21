@@ -82,7 +82,7 @@ FALLBACK_WORDS = {
 
 def _gemini(prompt: str) -> dict:
     """Call Gemini and parse JSON response."""
-    models_to_try = [settings.GEMINI_MODEL, 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest']
+    models_to_try = [settings.GEMINI_MODEL, 'gemini-3.1-pro-preview', 'gemini-3.5-flash', 'gemini-flash-latest']
     last_error = None
 
     for model_name in models_to_try:
@@ -99,7 +99,6 @@ def _gemini(prompt: str) -> dict:
                  raise ValueError(f"Empty or blocked response from model {model_name}")
 
             text = response.text.strip()
-            print(f"DEBUG: Gemini ({model_name}) Raw Response: {repr(text)}")
 
             # Improved JSON extraction: Look for the first { and last }
             json_match = re.search(r'\{.*\}', text, re.DOTALL)

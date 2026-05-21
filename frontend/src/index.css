@@ -1131,12 +1131,14 @@ button {
   .setup-title {
     letter-spacing: -1px;
   }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
   .grid-3 { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .kb-key {
-    width: 27px;
-    height: 32px;
-    font-size: 11px;
+    width: 8vw;
+    max-width: 27px;
+    height: 36px;
+    font-size: 12px;
     border-radius: 5px;
   }
   .kb-row { gap: 3px; }
@@ -1144,4 +1146,11 @@ button {
   .letter-char { font-size: 20px; }
   .letter-slot { min-width: 18px; min-height: 34px; }
   .letter-underline { width: 18px; }
+  
+  .game-hdr { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .scores-group { width: 100%; justify-content: space-between; }
+  
+  /* Make result modal scrollable on very small screens */
+  .result-card { max-height: 85vh; overflow-y: auto; padding: 16px; }
+  .app-window { padding-bottom: 20px; }
 }
