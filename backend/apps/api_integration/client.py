@@ -99,7 +99,7 @@ def _gemini(prompt: str) -> dict:
                  raise ValueError(f"Empty or blocked response from model {model_name}")
 
             text = response.text.strip()
-            print(f"DEBUG: Gemini ({model_name}) Raw Response: {text}")
+            print(f"DEBUG: Gemini ({model_name}) Raw Response: {repr(text)}")
 
             # Improved JSON extraction: Look for the first { and last }
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
@@ -109,7 +109,7 @@ def _gemini(prompt: str) -> dict:
             return json.loads(text)
         except Exception as e:
             last_error = e
-            print(f"DEBUG: Gemini Error with {model_name}: {str(e)}")
+            print(f"DEBUG: Gemini Error with {model_name}: {repr(e)}")
             continue
     
     # If all models failed

@@ -7,7 +7,48 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231A1814'/><path d='M7 24V13M16 24V7M25 24V16' stroke='%23F7F4EF' stroke-width='3' stroke-linecap='round'/></svg>" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- Ambient Canvas Backgrounds -->
+    <div class="ambient-glow bg-glow-1"></div>
+    <div class="ambient-glow bg-glow-2"></div>
+    <div class="ambient-glow bg-glow-3"></div>
+
+    <!-- Frameless App Window -->
+    <div class="app-window">
+      <!-- Custom MacOS-style Title Bar -->
+      <div class="title-bar">
+        <div class="window-controls">
+          <button class="win-ctrl close" aria-label="Close">
+            <svg viewBox="0 0 12 12"><path d="M1.5 1.5l9 9m0-9l-9 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="win-ctrl minimize" aria-label="Minimize">
+            <svg viewBox="0 0 12 12"><path d="M1.5 6h9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="win-ctrl maximize" aria-label="Maximize">
+            <svg viewBox="0 0 12 12"><path d="M1.5 1.5h9v9h-9z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="window-title">
+          <span class="active-badge"></span>
+          <span>dicthero-session</span>
+          <span class="secure-icon">🔒</span>
+        </div>
+
+        <div class="window-actions">
+          <span class="shortcut-tag">⌘K</span>
+          <div class="sys-dot"></div>
+        </div>
+      </div>
+
+      <!-- App Viewport -->
+      <div class="window-content" id="app-view">
+        <!-- Swapped dynamically by main.js -->
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
