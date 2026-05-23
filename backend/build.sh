@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # ── Render Build Script for Django Backend ─────────────────────
-# This script is used by Render to build the backend service.
-# It installs dependencies and collects static files.
+set -o errexit
 
-set -o errexit  # Exit on error
+echo "📦 Upgrading pip..."
+pip install --upgrade pip
 
 echo "📦 Installing Python dependencies..."
-pip install --upgrade pip
 pip install -r requirements.txt
 
 echo "📂 Collecting static files..."
