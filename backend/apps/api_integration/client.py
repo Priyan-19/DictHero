@@ -46,38 +46,7 @@ LANG_MAP = {
     'ml': {'label': 'Malayalam', 'key': 'malayalam', 'script': 'മലയാളம்'},
 }
 
-FALLBACK_WORDS = {
-    'easy': [
-        {'word': 'BRAVE',  'hint': 'The knight showed this when facing the dragon.',    'category': 'Character'},
-        {'word': 'GENTLE', 'hint': 'A touch so soft it would not startle a butterfly.', 'category': 'Character'},
-        {'word': 'CLEVER', 'hint': 'What foxes in fables always seem to be.',           'category': 'Mind'},
-        {'word': 'BRIGHT', 'hint': 'Opposite of dim, or someone very smart.',           'category': 'Adjective'},
-        {'word': 'SIMPLE', 'hint': 'Not complex; easy to understand.',                 'category': 'Adjective'},
-        {'word': 'DANGER', 'hint': 'Something that could cause harm or injury.',        'category': 'Nouns'},
-        {'word': 'FRIEND', 'hint': 'A person you know well and like.',                  'category': 'People'},
-        {'word': 'WONDER', 'hint': 'A feeling of surprise and admiration.',             'category': 'Emotion'},
-    ],
-    'medium': [
-        {'word': 'ELOQUENT',  'hint': 'This quality makes speeches powerful and persuasive.', 'category': 'Communication'},
-        {'word': 'TENACIOUS', 'hint': 'The quality that keeps a bulldog holding on.',          'category': 'Character'},
-        {'word': 'CATALYST',  'hint': 'Something that sparks rapid change without being consumed.', 'category': 'Science'},
-        {'word': 'AMBIGUOUS', 'hint': 'When something has more than one possible meaning.',     'category': 'Logic'},
-        {'word': 'PRAGMATIC', 'hint': 'Dealing with things sensibly and realistically.',       'category': 'Mindset'},
-        {'word': 'RESILIENT', 'hint': 'Able to withstand or recover quickly from difficult conditions.', 'category': 'Character'},
-        {'word': 'SOLITUDE',  'hint': 'The state of being alone, usually by choice.',          'category': 'State'},
-        {'word': 'VIBRANT',   'hint': 'Full of energy, life, and bright colors.',             'category': 'Adjective'},
-    ],
-    'hard': [
-        {'word': 'EPHEMERAL',     'hint': 'Like morning dew that vanishes before noon.',         'category': 'Academic'},
-        {'word': 'MELLIFLUOUS',   'hint': 'Sound that flows like honey poured from a jar.',      'category': 'Arts'},
-        {'word': 'PERSPICACIOUS', 'hint': 'What detectives must be to see the unseen truth.',    'category': 'Mind'},
-        {'word': 'UBIQUITOUS',    'hint': 'Present, appearing, or found everywhere.',            'category': 'Academic'},
-        {'word': 'CACOPHONY',     'hint': 'A harsh, discordant mixture of sounds.',              'category': 'Sounds'},
-        {'word': 'SURREPTITIOUS', 'hint': 'Kept secret, especially because it would not be approved of.', 'category': 'Behavior'},
-        {'word': 'ENIGMATIC',     'hint': 'Difficult to interpret or understand; mysterious.',    'category': 'Mind'},
-        {'word': 'PARADIGM',      'hint': 'A typical example or pattern of something; a model.', 'category': 'Science'},
-    ],
-}
+
 
 
 def _gemini(prompt: str) -> dict:
@@ -144,67 +113,10 @@ def fetch_word(difficulty: str) -> dict:
         }
     except Exception as e:
         print(f"DEBUG: Gemini failed in fetch_word: {e}")
-        fb = list(FALLBACK_WORDS.get(difficulty, FALLBACK_WORDS['medium']))
-        random.shuffle(fb) 
-        pick = fb[0]
-        print(f"DEBUG: Falling back to word: {pick['word']}")
-        return {'word': pick['word'], 'hint': pick['hint'], 'category': pick['category'], 'part_of_speech': ''}
+        raise e
 
 
-def _fetch_keyless_details(word: str, lang: str) -> dict:
-    """Fallback: Fetch details using Free Dictionary API and deep-translator."""
-    import requests
-    try:
-        from deep_translator import GoogleTranslator
-    except ImportError:
-        # If deep-translator is somehow still missing, return minimal info
-        return {
-            'definition': 'Definition load error (Dependency missing).',
-            'example': '—', 'phonetic': '', 'part_of_speech': '',
-            'translation_word': '', 'translation_explanation': '',
-            'lang_key': lang, 'lang_label': lang, 'lang_script': ''
-        }
-    
-    lc = LANG_MAP.get(lang, LANG_MAP['ta'])
-    key = lc['key']
-    
-    details = {
-        'definition': 'Definition not found.',
-        'example': '—',
-        'phonetic': '',
-        'part_of_speech': '',
-        'translation_word': '',
-        'translation_explanation': '',
-        'lang_key': key, 'lang_label': lc['label'], 'lang_script': lc['script'],
-    }
-    
-    # 1. Dictionary API
-    try:
-        dict_res = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", timeout=5)
-        if dict_res.ok:
-            data = dict_res.json()[0]
-            meanings = data.get('meanings', [])
-            if meanings:
-                details['part_of_speech'] = meanings[0].get('partOfSpeech', '')
-                def_obj = meanings[0].get('definitions', [{}])[0]
-                details['definition'] = def_obj.get('definition', details['definition'])
-                details['example'] = def_obj.get('example', '—')
-            details['phonetic'] = data.get('phonetic', '')
-    except Exception as e:
-        print(f"DEBUG: Keyless Dict Error: {e}")
 
-    # 2. Translation
-    try:
-        translator = GoogleTranslator(source='en', target=lang)
-        details['translation_word'] = translator.translate(word)
-        
-        # Simple explanation fallback
-        expl_text = f"The word '{word}' means {details['definition']}"
-        details['translation_explanation'] = translator.translate(expl_text[:150])
-    except Exception as e:
-        print(f"DEBUG: Keyless Translation Error: {e}")
-        
-    return details
 
 
 def fetch_word_details(word: str, lang: str) -> dict:
@@ -236,5 +148,5 @@ def fetch_word_details(word: str, lang: str) -> dict:
             'lang_script': lc['script'],
         }
     except Exception as e:
-        print(f"DEBUG: Gemini Failed (Quota?), falling back to keyless. Error: {e}")
-        return _fetch_keyless_details(word, lang)
+        print(f"DEBUG: Gemini Failed. Error: {e}")
+        raise e

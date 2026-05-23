@@ -20,38 +20,7 @@ const KEYBOARD_ROWS = [
   ['Z','X','C','V','B','N','M'],
 ];
 
-const FALLBACK_WORDS = {
-  easy: [
-    { word: 'BRAVE',   hint: 'The knight showed this when facing the dragon.',    category: 'Character' },
-    { word: 'GENTLE',  hint: 'A touch so soft it would not startle a butterfly.', category: 'Character' },
-    { word: 'CLEVER',  hint: 'What foxes in fables always seem to be.',           category: 'Mind' },
-    { word: 'BRIGHT',  hint: 'Opposite of dim, or someone very smart.',           category: 'Adjective' },
-    { word: 'SIMPLE',  hint: 'Not complex; easy to understand.',                 category: 'Adjective' },
-    { word: 'DANGER',  hint: 'Something that could cause harm or injury.',        category: 'Nouns' },
-    { word: 'FRIEND',  hint: 'A person you know well and like.',                  category: 'People' },
-    { word: 'WONDER',  hint: 'A feeling of surprise and admiration.',             category: 'Emotion' },
-  ],
-  medium: [
-    { word: 'ELOQUENT',  hint: 'This quality makes speeches powerful and persuasive.', category: 'Communication' },
-    { word: 'TENACIOUS', hint: 'The quality that keeps a bulldog holding on.',          category: 'Character' },
-    { word: 'CATALYST',  hint: 'Something that sparks rapid change without being consumed.', category: 'Science' },
-    { word: 'AMBIGUOUS', hint: 'When something has more than one possible meaning.',     category: 'Logic' },
-    { word: 'PRAGMATIC', hint: 'Dealing with things sensibly and realistically.',       category: 'Mindset' },
-    { word: 'RESILIENT', hint: 'Able to withstand or recover quickly from difficult conditions.', category: 'Character' },
-    { word: 'SOLITUDE',  hint: 'The state of being alone, usually by choice.',          category: 'State' },
-    { word: 'VIBRANT',   hint: 'Full of energy, life, and bright colors.',             category: 'Adjective' },
-  ],
-  hard: [
-    { word: 'EPHEMERAL',     hint: 'Like morning dew that vanishes before noon.',          category: 'Academic' },
-    { word: 'MELLIFLUOUS',   hint: 'Sound that flows like honey poured from a jar.',       category: 'Arts' },
-    { word: 'PERSPICACIOUS', hint: 'What detectives must be to see the unseen truth.',     category: 'Mind' },
-    { word: 'UBIQUITOUS',    hint: 'Present, appearing, or found everywhere.',            category: 'Academic' },
-    { word: 'CACOPHONY',     hint: 'A harsh, discordant mixture of sounds.',              category: 'Sounds' },
-    { word: 'SURREPTITIOUS', hint: 'Kept secret, especially because it would not be approved of.', category: 'Behavior' },
-    { word: 'ENIGMATIC',     hint: 'Difficult to interpret or understand; mysterious.',    category: 'Mind' },
-    { word: 'PARADIGM',      hint: 'A typical example or pattern of something; a model.', category: 'Science' },
-  ],
-};
+
 
 /* ── GAME STATE STORE ───────────────────────────────────────── */
 const S = {
@@ -156,18 +125,9 @@ const App = {
       S.hint = data.hint || 'A vocabulary word to discover.';
       S.category = data.category || 'Vocabulary';
     } catch (e) {
-      console.warn('API Start Game failed. Loading fallback word offline.', e);
-      // Retrieve fallback category list
-      const fbList = [...FALLBACK_WORDS[S.diff]];
-      // Shuffle array to ensure unique pick order
-      for (let i = fbList.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [fbList[i], fbList[j]] = [fbList[j], fbList[i]];
-      }
-      const pick = fbList[0];
-      S.word = pick.word.toUpperCase();
-      S.hint = pick.hint;
-      S.category = pick.category;
+      console.error('API Start Game failed.', e);
+      showToast('Failed to connect to the server. Please check your connection.');
+      S.screen = 'setup';
     } finally {
       S.loading = false;
       this.render();

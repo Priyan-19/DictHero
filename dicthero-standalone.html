@@ -250,7 +250,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 const ROWS=[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['Z','X','C','V','B','N','M']];
 const DIFF={easy:{lives:8,lbl:'Easy',cls:'easy'},medium:{lives:6,lbl:'Medium',cls:'medium'},hard:{lives:4,lbl:'Hard',cls:'hard'}};
 const LANG={ta:{lbl:'Tamil',key:'tamil',sc:'தமிழ்'},hi:{lbl:'Hindi',key:'hindi',sc:'हिन्दी'},te:{lbl:'Telugu',key:'telugu',sc:'తెలుగు'},ml:{lbl:'Malayalam',key:'malayalam',sc:'മലയാളം'}};
-const FALLBACK={easy:[{word:'BRAVE',hint:'The knight showed this when facing the dragon.',cat:'Character'},{word:'GENTLE',hint:'A touch so soft it would not startle a butterfly.',cat:'Character'},{word:'CLEVER',hint:'What foxes in fables always seem to be.',cat:'Mind'},{word:'BRIGHT',hint:'Opposite of dim, or someone very smart.',cat:'Adjective'},{word:'SIMPLE',hint:'Not complex; easy to understand.',cat:'Adjective'},{word:'DANGER',hint:'Something that could cause harm or injury.',cat:'Nouns'},{word:'FRIEND',hint:'A person you know well and like.',cat:'People'},{word:'WONDER',hint:'A feeling of surprise and admiration.',cat:'Emotion'}],medium:[{word:'ELOQUENT',hint:'This quality makes speeches powerful and persuasive.',cat:'Communication'},{word:'TENACIOUS',hint:'The quality that keeps a bulldog holding on.',cat:'Character'},{word:'CATALYST',hint:'Something that sparks rapid change without being consumed.',cat:'Science'},{word:'AMBIGUOUS',hint:'When something has more than one possible meaning.',cat:'Logic'},{word:'PRAGMATIC',hint:'Dealing with things sensibly and realistically.',cat:'Mindset'},{word:'RESILIENT',hint:'Able to withstand or recover quickly from difficult conditions.',cat:'Character'},{word:'SOLITUDE',hint:'The state of being alone, usually by choice.',cat:'State'},{word:'VIBRANT',hint:'Full of energy, life, and bright colors.',cat:'Adjective'}],hard:[{word:'EPHEMERAL',hint:'Like morning dew that vanishes before noon.',cat:'Academic'},{word:'MELLIFLUOUS',hint:'Sound that flows like honey poured from a jar.',cat:'Arts'},{word:'PERSPICACIOUS',hint:'What detectives must be to see the unseen truth.',cat:'Mind'},{word:'UBIQUITOUS',hint:'Present, appearing, or found everywhere.',cat:'Academic'},{word:'CACOPHONY',hint:'A harsh, discordant mixture of sounds.',cat:'Sounds'},{word:'SURREPTITIOUS',hint:'Kept secret, especially because it would not be approved of.',cat:'Behavior'},{word:'ENIGMATIC',hint:'Difficult to interpret or understand; mysterious.',cat:'Mind'},{word:'PARADIGM',hint:'A typical example or pattern of something; a model.',cat:'Science'}]};
+
 
 let S={word:'',guessed:new Set(),wrong:0,max:6,diff:'easy',lang:'ta',hint:'',cat:'',over:false,loading:false,hintUsed:false,wins:0,losses:0,streak:0};
 
@@ -405,8 +405,9 @@ async function startGame(){
     const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
     S.word=(parsed.word||'eloquent').toUpperCase();S.hint=parsed.hint||'A word to discover.';S.cat=parsed.category||'Vocabulary';
   }catch(e){
-    const fb=FALLBACK[S.diff];const pick=fb[Math.floor(Math.random()*fb.length)];
-    S.word=pick.word;S.hint=pick.hint;S.cat=pick.cat;
+    showToast('Failed to connect to server.');
+    goSetup();
+    return;
   }
 
   document.getElementById('hintTxt').textContent=S.hint;
