@@ -6,6 +6,8 @@
 [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Django](https://img.shields.io/badge/Django_4.2-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Deploy on Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Deploy on Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
 
 **DictHero** is a production-level, fully API-driven Hangman SPA for vocabulary learning with bilingual support. Built with Vanilla JavaScript, Vite, and Django, it leverages Google Gemini to deliver a dynamic, gamified learning experience.
 
@@ -32,12 +34,12 @@ The interface is crafted to provide a highly interactive and engaging learning e
 
 ### Visual System
 - **Design Style**: Glassmorphism and sleek modern UI
-- **Animations**: Framer Motion for smooth state transitions
+- **Animations**: Smooth CSS transitions and state animations
 - **Feedback**: Real-time visual feedback on correct/incorrect guesses
 
 ### UX Highlights
 - Animated Hangman SVG dynamically tracking progress
-- Interactive on-screen keyboard
+- Interactive on-screen keyboard with hit/miss visual states
 - Post-game ResultCard with detailed definitions and translations
 - Fully responsive design optimized for mobile and desktop
 
@@ -47,14 +49,33 @@ The interface is crafted to provide a highly interactive and engaging learning e
 
 The application follows a **modern, stateless, API-driven architecture**:
 
-### 🐹 Backend: Python & Django
-- Django 4.2 with Django REST Framework (DRF)
-- Stateless request processing
-- Modular app structure for game logic and AI integration
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     DEPLOYMENT TOPOLOGY                     │
+├──────────────────────┬──────────────────────────────────────┤
+│    Vercel (Free)     │         Render (Free)               │
+│                      │                                      │
+│  ┌────────────────┐  │  ┌────────────────────────────────┐  │
+│  │  Vite Static   │──┼──│  Django REST API (gunicorn)   │  │
+│  │  Site (SPA)    │  │  │  + WhiteNoise Static Files    │  │
+│  └────────────────┘  │  └────────────┬───────────────────┘  │
+│                      │               │                      │
+│                      │  ┌────────────▼───────────────────┐  │
+│                      │  │   Google Gemini AI API         │  │
+│                      │  │   (gemini-1.5-flash)           │  │
+│                      │  └────────────────────────────────┘  │
+└──────────────────────┴──────────────────────────────────────┘
+```
 
-### ⚡ Frontend: React + Vite
-- React 18 SPA (Single Page Application)
-- Framer Motion for UI animations
+### 🐍 Backend: Python & Django
+- Django 4.2 with Django REST Framework (DRF)
+- Stateless request processing — no database required
+- WhiteNoise for static file serving
+- Gunicorn WSGI server for production
+
+### ⚡ Frontend: Vanilla JS + Vite
+- Pure Vanilla JavaScript SPA (Single Page Application)
+- Vite for lightning-fast dev server and optimized production builds
 - State managed via client-server communication
 
 ### 🔗 AI Layer: Google Gemini
@@ -66,16 +87,13 @@ The application follows a **modern, stateless, API-driven architecture**:
 ## 🚀 Key Features
 
 ### 🔍 3 Difficulty Levels
-- **Easy** → A2-B1 CEFR level words
-- **Medium** → B2 CEFR level words
-- **Hard** → C1-C2 advanced vocabulary
+- **Easy** → A2-B1 CEFR level words (8 lives)
+- **Medium** → B2 CEFR level words (6 lives)
+- **Hard** → C1-C2 advanced vocabulary (4 lives)
 
 ### 🌍 Multilingual Support
 - Definitions and translations available in:
-  - Tamil
-  - Hindi
-  - Telugu
-  - Malayalam
+  - Tamil · Hindi · Telugu · Malayalam
 
 ### ⚡ Stateless Game Engine
 - No database required; game state is strictly managed between client and server
@@ -86,36 +104,43 @@ The application follows a **modern, stateless, API-driven architecture**:
 
 ```text
 dicthero/
-├── frontend/                       # React SPA (Vite)
+├── frontend/                       # Vanilla JS SPA (Vite)
 │   ├── src/
-│   │   ├── animations/             # Framer Motion presets
-│   │   ├── components/             # Reusable UI components
-│   │   ├── pages/                  # Main screen components
-│   │   ├── services/               # API integration layer
-│   │   └── App.jsx                 # Screen routing
+│   │   ├── index.css               # Complete design system
+│   │   └── main.js                 # App logic, state, and rendering
 │   ├── index.html                  # Main HTML entry
 │   └── vite.config.js              # Vite configuration
 │
 ├── backend/                        # Django REST API
 │   ├── config/                     # Core Django configuration
+│   │   ├── settings.py             # Settings (env-driven)
+│   │   ├── urls.py                 # Root URL routing
+│   │   └── wsgi.py                 # WSGI entry point
 │   ├── apps/                       # Modular Django apps
 │   │   ├── game/                   # Hangman logic & API endpoints
-│   │   ├── api_integration/        # External AI connectivity
-│   │   └── formatter/              # Data shaping
+│   │   ├── api_integration/        # Gemini AI connectivity
+│   │   └── formatter/              # Data shaping utilities
+│   ├── build.sh                    # Render build script
+│   ├── Procfile                    # Render process definition
+│   ├── runtime.txt                 # Python version pin
 │   ├── requirements.txt            # Python dependencies
-│   └── manage.py                   # Django CLI entry
+│   └── .env.example                # Environment variable template
 │
-└── dicthero-standalone.html        # Fully portable, single-file HTML version
+├── vercel.json                     # Vercel deployment config (frontend)
+├── render.yaml                     # Render Blueprint (full-stack IaC)
+├── dicthero-standalone.html        # Fully portable, single-file HTML version
+├── .gitignore                      # Git ignore rules
+└── README.md                       # This file
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- Google Gemini API Key
+- **Node.js** 18+ (for frontend)
+- **Python** 3.11+ (for backend)
+- **Google Gemini API Key** — get one free at [Google AI Studio](https://aistudio.google.com/)
 
 ---
 
@@ -133,9 +158,8 @@ venv\Scripts\activate        # Windows
 pip install -r requirements.txt
 
 # Configure environment
-# Create a .env file in the backend directory:
-# GEMINI_API_KEY=your_api_key_here
-# DJANGO_SECRET_KEY=your_secret_key
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY and DJANGO_SECRET_KEY
 
 # Run Django server
 python manage.py runserver 8000
@@ -151,11 +175,95 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start dev server
+# Start dev server (proxies /api to localhost:8000)
 npm run dev
 ```
 
-**Access the application at:** `http://localhost:3000` (or Vite's default port)
+**Access the application at:** `http://localhost:3000`
+
+---
+
+## ☁️ Deployment Guide
+
+### Option A: Vercel (Frontend) + Render (Backend)
+
+> **Recommended** — Best free-tier performance. Vercel serves the frontend via its global CDN, Render hosts the Django API.
+
+#### Step 1: Deploy Backend on Render
+
+1. Push your repo to **GitHub**
+2. Go to [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**
+3. Connect your GitHub repo — Render auto-detects `render.yaml`
+4. Set the following environment variables manually in Render dashboard:
+
+| Variable | Value |
+|---|---|
+| `GEMINI_API_KEY` | Your Google AI Studio key |
+| `CORS_ALLOWED_ORIGINS` | `https://your-app.vercel.app` |
+| `CSRF_TRUSTED_ORIGINS` | `https://your-app.vercel.app` |
+
+5. Deploy! Your API will be live at `https://dicthero-api.onrender.com`
+
+#### Step 2: Deploy Frontend on Vercel
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard) → **Add New** → **Project**
+2. Import your GitHub repo
+3. Configure these settings:
+
+| Setting | Value |
+|---|---|
+| **Root Directory** | `frontend` |
+| **Framework Preset** | Vite |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+
+4. Add environment variable:
+
+| Variable | Value |
+|---|---|
+| `VITE_API_URL` | `https://dicthero-api.onrender.com/api` |
+
+> [!IMPORTANT]
+> `VITE_API_URL` is baked into the build at compile time. You must redeploy the frontend if you change the backend URL.
+
+5. Deploy! Your frontend will be live at `https://your-app.vercel.app`
+
+---
+
+### Option B: Full-Stack on Render
+
+> Deploy everything on Render using the Blueprint.
+
+1. Push your repo to GitHub
+2. Go to [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**
+3. Connect your repo — Render auto-detects `render.yaml` and creates both services
+4. Set these environment variables in the dashboard:
+
+**Backend (`dicthero-api`):**
+
+| Variable | Value |
+|---|---|
+| `GEMINI_API_KEY` | Your API key |
+| `CORS_ALLOWED_ORIGINS` | `https://dicthero.onrender.com` |
+| `CSRF_TRUSTED_ORIGINS` | `https://dicthero.onrender.com` |
+
+**Frontend (`dicthero`):**
+
+| Variable | Value |
+|---|---|
+| `VITE_API_URL` | `https://dicthero-api.onrender.com/api` |
+
+5. Deploy both services!
+
+---
+
+### Post-Deployment Checklist
+
+- [ ] Backend health check: visit `https://your-backend-url/api/game/start/?difficulty=easy&lang=ta`
+- [ ] Frontend loads at your Vercel/Render URL
+- [ ] Game starts and Gemini returns words
+- [ ] End-game details and translations load correctly
+- [ ] CORS errors are absent in browser console
 
 ---
 
@@ -165,7 +273,7 @@ npm run dev
 |------|------|------|
 | Google Gemini | `gemini-1.5-flash` | Word generation, definitions, translations |
 
-### Recommendation
+### Get Your API Key
 Get a free API key at [Google AI Studio](https://aistudio.google.com/)
 
 ---
@@ -178,14 +286,29 @@ Get a free API key at [Google AI Studio](https://aistudio.google.com/)
 | POST   | `/api/game/guess/`    | Process a letter guess (stateless) |
 | POST   | `/api/game/end/`      | Fetch details & translations       |
 
+### Query Parameters
+
+**`GET /api/game/start/`**
+| Param | Type | Description |
+|---|---|---|
+| `difficulty` | `string` | `easy`, `medium`, or `hard` |
+| `lang` | `string` | Translation language: `ta`, `hi`, `te`, `ml` |
+
+**`POST /api/game/end/`**
+| Field | Type | Description |
+|---|---|---|
+| `word` | `string` | The target word |
+| `lang` | `string` | Translation language code |
+
 ---
 
 ## 📦 Architecture Highlights
 
-- Fully stateless backend logic
-- AI-driven dynamic content without manual DB curation
-- Component-driven React UI with Framer Motion
+- Fully stateless backend logic — zero database overhead
+- AI-driven dynamic content without manual curation
+- Component-driven Vanilla JS UI with CSS animations
 - Standalone portable HTML version available
+- Production-ready with WhiteNoise, Gunicorn, and security headers
 
 ---
 
@@ -193,7 +316,21 @@ Get a free API key at [Google AI Studio](https://aistudio.google.com/)
 
 - Fun and interactive way to build English vocabulary
 - Learn meanings in native regional languages
-- Challenge yourself with high-level vocabulary
+- Challenge yourself with high-level vocabulary (CEFR C1/C2)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla JavaScript, Vite 5, CSS3 |
+| Backend | Python 3.11, Django 4.2, DRF |
+| AI | Google Gemini (`gemini-1.5-flash`) |
+| Frontend Hosting | Vercel (recommended) or Render Static |
+| Backend Hosting | Render Web Service |
+| Static Files | WhiteNoise |
+| WSGI Server | Gunicorn |
 
 ---
 
