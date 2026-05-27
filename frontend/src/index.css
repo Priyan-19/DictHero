@@ -236,7 +236,8 @@ button {
 .window-content {
   flex: 1;
   padding: 24px 28px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
