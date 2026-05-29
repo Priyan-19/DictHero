@@ -50,7 +50,11 @@ const S = {
   detailsLoading: false,
   
   // Timers
-  toastTimer: null
+  toastTimer: null,
+  
+  // Prefetch caching
+  nextGameData: null,
+  detailsPromise: null
 };
 
 /* ── GAME ENDPOINTS API WRAPPERS ────────────────────────────── */
@@ -120,10 +124,20 @@ const App = {
     this.render();
 
     try {
-      const data = await startGameAPI(S.diff, S.lang);
+      let data;
+      if (S.nextGameData && S.nextGameData.diff === S.diff && S.nextGameData.lang === S.lang) {
+        data = S.nextGameData.data;
+        S.nextGameData = null;
+      } else {
+        data = await startGameAPI(S.diff, S.lang);
+      }
       S.word = (data.word || 'eloquent').toUpperCase();
       S.hint = data.hint || 'A vocabulary word to discover.';
       S.category = data.category || 'Vocabulary';
+      
+      // Kick off background prefetching to hide API latency
+      this.prefetchDetails();
+      this.prefetchNextWord();
     } catch (e) {
       console.error('API Start Game failed.', e);
       showToast('Failed to connect to the server. Please check your connection.');
@@ -132,6 +146,22 @@ const App = {
       S.loading = false;
       this.render();
     }
+  },
+
+  async prefetchNextWord() {
+    try {
+      const data = await startGameAPI(S.diff, S.lang);
+      S.nextGameData = { diff: S.diff, lang: S.lang, data };
+    } catch (e) {
+      S.nextGameData = null;
+    }
+  },
+
+  prefetchDetails() {
+    S.detailsPromise = endGameAPI(S.word, S.lang).catch(e => {
+      console.error('Details prefetch failed', e);
+      return null;
+    });
   },
 
   // Register letter guess
@@ -143,6 +173,8 @@ const App = {
     if (keyBtn) {
       keyBtn.classList.add('key-press-animation');
       setTimeout(() => keyBtn.classList.remove('key-press-animation'), 150);
+      keyBtn.classList.add(S.word.includes(letter) ? 'hit' : 'miss');
+      keyBtn.disabled = true;
     }
 
     S.guessed.add(letter);
@@ -151,12 +183,21 @@ const App = {
     const isHit = S.word.includes(letter);
     
     if (isHit) {
+      // Update DOM surgically to avoid full re-render blink
+      const slots = document.querySelectorAll('#word-slots-container .letter-char');
+      let slotIdx = 0;
+      for (let i = 0; i < S.word.length; i++) {
+        if (S.word[i] === ' ') continue;
+        if (S.word[i] === letter && slots[slotIdx]) {
+          slots[slotIdx].classList.add('revealed');
+        }
+        slotIdx++;
+      }
+
       // Check win condition
       const won = [...wordClean].every(char => S.guessed.has(char));
       if (won) {
         this.triggerGameEnd(true);
-      } else {
-        this.render();
       }
     } else {
       S.wrong++;
@@ -171,10 +212,31 @@ const App = {
       const livesCfg = DIFFICULTIES.find(d => d.id === S.diff);
       const maxWrong = livesCfg ? livesCfg.lives : 6;
       
+      // Surgically update hangman SVG & lives
+      const bodyPaths = document.querySelectorAll('.body-path');
+      if (bodyPaths.length >= S.wrong) {
+         bodyPaths[S.wrong - 1].classList.add('visible');
+      }
+      const dots = document.querySelectorAll('.life-dot');
+      if (dots.length >= S.wrong) {
+         dots[S.wrong - 1].classList.add('used');
+      }
+      const livesLeft = maxWrong - S.wrong;
+      const livesTxt = document.querySelector('.lives-txt');
+      if (livesTxt) livesTxt.textContent = `${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} left`;
+      
+      const stateCard = document.querySelector('.hg-state');
+      if (stateCard) {
+         if (S.wrong >= maxWrong - 1) {
+            stateCard.classList.remove('safe');
+            stateCard.classList.add('danger');
+         } else if (S.wrong > 0) {
+            stateCard.classList.add('safe');
+         }
+      }
+
       if (S.wrong >= maxWrong) {
         this.triggerGameEnd(false);
-      } else {
-        this.render();
       }
     }
   },
@@ -213,7 +275,13 @@ const App = {
     this.render();
     
     try {
-      const data = await endGameAPI(S.word, S.lang);
+      let data;
+      if (S.detailsPromise) {
+        data = await S.detailsPromise;
+      } else {
+        data = await endGameAPI(S.word, S.lang);
+      }
+      if (!data) throw new Error('Prefetch returned null');
       S.details = data;
     } catch (e) {
       console.error('Failed loading endGame metadata details.', e);
