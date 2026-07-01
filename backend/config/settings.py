@@ -85,5 +85,10 @@ REST_FRAMEWORK = {
 }
 
 # Gemini
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+keys_env = os.getenv('GEMINI_API_KEYS', os.getenv('GEMINI_API_KEY', ''))
+GEMINI_API_KEYS = [k.strip() for k in keys_env.split(',') if k.strip()]
+if not GEMINI_API_KEYS:
+    GEMINI_API_KEYS = [''] # Fallback empty string
+
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ''
 GEMINI_MODEL   = 'gemini-1.5-flash'

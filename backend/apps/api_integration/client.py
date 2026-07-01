@@ -51,37 +51,53 @@ LANG_MAP = {
 
 def _gemini(prompt: str) -> dict:
     """Call Gemini and parse JSON response."""
+    import random
     models_to_try = [settings.GEMINI_MODEL, 'gemini-3.1-pro-preview', 'gemini-3.5-flash', 'gemini-flash-latest']
+    api_keys_to_try = getattr(settings, 'GEMINI_API_KEYS', [settings.GEMINI_API_KEY])
+    
     last_error = None
 
-    for model_name in models_to_try:
-        try:
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel(model_name)
-            
-            # Add explicit JSON instruction to the prompt just in case
-            full_prompt = prompt + "\nReturn strictly valid JSON. No markdown blocks, no preamble."
-            
-            response = model.generate_content(full_prompt)
-            
-            if not response or not hasattr(response, 'text'):
-                 raise ValueError(f"Empty or blocked response from model {model_name}")
+    keys = list(api_keys_to_try)
+    random.shuffle(keys)
 
-            text = response.text.strip()
-
-            # Improved JSON extraction: Look for the first { and last }
-            json_match = re.search(r'\{.*\}', text, re.DOTALL)
-            if json_match:
-                text = json_match.group(0)
-            
-            return json.loads(text)
-        except Exception as e:
-            last_error = e
-            print(f"DEBUG: Gemini Error with {model_name}: {repr(e)}")
+    for api_key in keys:
+        if not api_key:
             continue
+        for model_name in models_to_try:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(model_name)
+                
+                # Add explicit JSON instruction to the prompt just in case
+                full_prompt = prompt + "\nReturn strictly valid JSON. No markdown blocks, no preamble."
+                
+                response = model.generate_content(full_prompt)
+                
+                if not response or not hasattr(response, 'text'):
+                     raise ValueError(f"Empty or blocked response from model {model_name}")
+
+                text = response.text.strip()
+
+                # Improved JSON extraction: Look for the first { and last }
+                json_match = re.search(r'\{.*\}', text, re.DOTALL)
+                if json_match:
+                    text = json_match.group(0)
+                
+                return json.loads(text)
+            except Exception as e:
+                last_error = e
+                # Get a safe prefix for logging
+                safe_key = api_key[:4] + "..." if len(api_key) > 4 else "UNSET"
+                print(f"DEBUG: Gemini Error with {model_name} (key {safe_key}): {repr(e)}")
+                # If rate limit or quota exceeded, skip to the next API key
+                if '429' in str(e) or 'quota' in str(e).lower() or 'exhausted' in str(e).lower():
+                    break
+                continue
     
-    # If all models failed
-    raise last_error
+    # If all models and keys failed
+    if last_error is not None:
+        raise last_error
+    raise ValueError("Failed to connect to Gemini API with any configured key or model.")
 
 
 def fetch_word(difficulty: str) -> dict:
