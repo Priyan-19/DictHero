@@ -12,7 +12,6 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Minimal apps — no database required (fully API-driven)
 INSTALLED_APPS = [
-    'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
@@ -53,6 +52,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # CORS — configure via env for deployment
+CORS_URLS_REGEX = r'^/api/.*$'  # Apply CORS to all /api/ routes
+
 cors_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
 if cors_env:
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
