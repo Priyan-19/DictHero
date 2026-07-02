@@ -15,6 +15,12 @@ from apps.formatter.serializers import format_start, format_guess, format_detail
 
 
 @api_view(['GET'])
+def health_check(request):
+    """GET /api/game/health/ — simple liveness probe, no Gemini call."""
+    return Response({'status': 'ok', 'service': 'dicthero-backend'})
+
+
+@api_view(['GET'])
 def game_start(request):
     """
     GET /api/game/start/?difficulty=easy&lang=ta
@@ -26,11 +32,16 @@ def game_start(request):
     if difficulty not in DIFF_LIVES:
         return Response({'error': 'Invalid difficulty'}, status=status.HTTP_400_BAD_REQUEST)
 
-    word_data  = fetch_word(difficulty)
-    max_wrong  = DIFF_LIVES[difficulty]
-    masked     = mask_word(word_data['word'], set())
-
-    return Response(format_start(word_data, masked, max_wrong, difficulty, lang))
+    try:
+        word_data  = fetch_word(difficulty)
+        max_wrong  = DIFF_LIVES[difficulty]
+        masked     = mask_word(word_data['word'], set())
+        return Response(format_start(word_data, masked, max_wrong, difficulty, lang))
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to fetch word: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['POST'])
