@@ -10,4 +10,8 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    // Makes VITE_API_BASE_URL available as a global constant at build time
+    __API_BASE__: JSON.stringify(process.env.VITE_API_BASE_URL || ''),
+  },
 })
